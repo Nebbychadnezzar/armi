@@ -1618,6 +1618,7 @@ class HexBlock(Block):
         gamma=False,
         removeSixCornerPins=False,
         powerKeySuffix="",
+        virinder=None,
     ):
         """
         Updates the pin powers of this block for the current rotation.
@@ -1644,6 +1645,9 @@ class HexBlock(Block):
         """
         self.p.pinPowers = numpy.zeros(numPins)
         self.p["linPowByPin" + powerKeySuffix] = numpy.zeros(numPins)
+        if virinder is not None:
+            zPoints, pointPowers = virinder
+            pointPowByPin = numpy.zeros((numPins, len(zPoints)))
         j0 = jmax[imax - 1] / 6
         pinNum = 0
         for i in range(imax):  # loop through rings
@@ -1657,9 +1661,15 @@ class HexBlock(Block):
                     else:
                         pinLoc = pinNum
                     linPow = powers[pinLoc]
+                    if virinder is not None:
+                        pointPow = pointPowers[pinLoc]
                 self.p.pinPowers[pinNum] = linPow
+                if virinder is not None:
+                    pointPowByPin[pinNum] = pointPow
                 self.p["linPowByPin" + powerKeySuffix][pinNum] = linPow
                 pinNum += 1
+
+        self.p.pointPowByPin = numpy.append(pointPowByPin, [zPoints], axis=0)
 
         if powerKeySuffix == GAMMA:
             self.p.pinPowersGamma = self.p.pinPowers

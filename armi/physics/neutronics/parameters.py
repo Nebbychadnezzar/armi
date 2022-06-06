@@ -405,11 +405,34 @@ def _getNeutronicsBlockParams():
             else:
                 self._p_linPowByPin = numpy.array(value)
 
+        def pointPowByPin(self, value):
+            if value is None or isinstance(value, numpy.ndarray):
+                self._p_pointPowByPin = value
+            else:
+                raise AssertionError
+
         pb.defParam(
             "linPowByPin",
             setter=linPowByPin,
             units="W/cm",
             description="Pin linear power",
+            location=ParamLocation.CHILDREN,
+            default=None,
+        )
+
+        pb.defParam(
+            "pointPowByPin",
+            setter=pointPowByPin,
+            units="W/cm$^3$",
+            description="Pin point power",
+            location=ParamLocation.CHILDREN,
+            default=None,
+        )
+
+        pb.defParam(
+            "ductPointPower",
+            units="W/cm$^3$",
+            description="Duct point power",
             location=ParamLocation.CHILDREN,
             default=None,
         )
