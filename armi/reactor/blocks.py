@@ -25,8 +25,8 @@ import copy
 import collections
 from typing import Optional, Type, Tuple, ClassVar
 
-import matplotlib.pyplot as plt
 import numpy
+from numpy.polynomial.polynomial import Polynomial
 
 from armi.reactor import composites
 from armi import runLog
@@ -47,6 +47,10 @@ from armi.utils import hexagon
 from armi.utils import densityTools
 from armi.physics.neutronics import NEUTRON
 from armi.physics.neutronics import GAMMA
+<<<<<<< Updated upstream
+=======
+from regex import P
+>>>>>>> Stashed changes
 
 PIN_COMPONENTS = [
     Flags.CONTROL,
@@ -1618,7 +1622,6 @@ class HexBlock(Block):
         gamma=False,
         removeSixCornerPins=False,
         powerKeySuffix="",
-        virinder=None,
     ):
         """
         Updates the pin powers of this block for the current rotation.
@@ -1645,9 +1648,6 @@ class HexBlock(Block):
         """
         self.p.pinPowers = numpy.zeros(numPins)
         self.p["linPowByPin" + powerKeySuffix] = numpy.zeros(numPins)
-        if virinder is not None:
-            zPoints, pointPowers = virinder
-            pointPowByPin = numpy.zeros((numPins, len(zPoints)))
         j0 = jmax[imax - 1] / 6
         pinNum = 0
         for i in range(imax):  # loop through rings
@@ -1661,15 +1661,9 @@ class HexBlock(Block):
                     else:
                         pinLoc = pinNum
                     linPow = powers[pinLoc]
-                    if virinder is not None:
-                        pointPow = pointPowers[pinLoc]
                 self.p.pinPowers[pinNum] = linPow
-                if virinder is not None:
-                    pointPowByPin[pinNum] = pointPow
                 self.p["linPowByPin" + powerKeySuffix][pinNum] = linPow
                 pinNum += 1
-
-        self.p.pointPowByPin = numpy.append(pointPowByPin, [zPoints], axis=0)
 
         if powerKeySuffix == GAMMA:
             self.p.pinPowersGamma = self.p.pinPowers
@@ -1680,6 +1674,35 @@ class HexBlock(Block):
             self.p.pinPowers = self.p.pinPowersNeutron + self.p.pinPowersGamma
         else:
             self.p.pinPowers = self.p.pinPowersNeutron
+
+    def evaluatePinPowers(self, zCoord):
+        """
+        He who is true will get the pin power.
+        """
+        # Make sure we're not sending in garbage
+        blockBottom = self.p.zbottom
+        blockTop = self.p.ztop
+        assert blockBottom < zCoord < blockTop
+
+        # Determine the DIF3D node that the coordinate belongs to. Determine its top
+        # and bottom.
+        numDif3dMesh = self.p.axMesh
+        dif3dMesh = numpy.linspace(blockBottom, blockTop, numDif3dMesh + 1)
+        nodeNum = numpy.searchsorted(dif3dMesh, zCoord) - 1
+        nodeHeight = (blockTop - blockBottom) / numDif3dMesh
+        nodeBottom = blockBottom + nodeHeight * nodeNum
+        nodeTop = nodeBottom + nodeHeight
+        windowDomain = [nodeBottom, nodeTop]
+
+        # Get the coefficients that belong to the DIF3D node and then evaluate them for
+        # all pins at the desired elevation
+        pinCoeffs = self.p.pointPowByPinCoeffs[:, nodeNum, :]
+        pinPowers = [
+            Polynomial(e, domain=windowDomain, window=windowDomain)(zCoord)
+            for e in pinCoeffs
+        ]
+
+        return pinPowers
 
     def rotatePins(self, rotNum, justCompute=False):
         """
