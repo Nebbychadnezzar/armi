@@ -47,10 +47,6 @@ from armi.utils import hexagon
 from armi.utils import densityTools
 from armi.physics.neutronics import NEUTRON
 from armi.physics.neutronics import GAMMA
-<<<<<<< Updated upstream
-=======
-from regex import P
->>>>>>> Stashed changes
 
 PIN_COMPONENTS = [
     Flags.CONTROL,
