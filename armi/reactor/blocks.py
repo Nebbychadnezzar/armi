@@ -1692,8 +1692,13 @@ class HexBlock(Block):
 
         # Get the coefficients that belong to the DIF3D node and then evaluate them for
         # all pins at the desired elevation
-        param = {"pin": "pointPowByPinCoeffs", "duct": "pointPowByDuctCoeffs"}[component]
-        pinCoeffs = self.p[param][:, nodeNum, :]
+        param = {"pin": "pointPowByPinCoeffs", "duct": "pointPowByDuctCoeffs"}[
+            component
+        ]
+        try:
+            pinCoeffs = self.p[param][:, nodeNum, :]
+        except:
+            return None
         pinPowers = [
             Polynomial(e, domain=windowDomain, window=windowDomain)(zCoord)
             for e in pinCoeffs
