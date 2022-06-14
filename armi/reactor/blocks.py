@@ -1671,9 +1671,9 @@ class HexBlock(Block):
         else:
             self.p.pinPowers = self.p.pinPowersNeutron
 
-    def evaluatePinPowers(self, zCoord):
+    def evaluateComponentPowers(self, zCoord, component):
         """
-        He who is true will get the pin power.
+        He who is true of spirit will get the power.
         """
         # Make sure we're not sending in garbage
         blockBottom = self.p.zbottom
@@ -1692,7 +1692,8 @@ class HexBlock(Block):
 
         # Get the coefficients that belong to the DIF3D node and then evaluate them for
         # all pins at the desired elevation
-        pinCoeffs = self.p.pointPowByPinCoeffs[:, nodeNum, :]
+        param = {"pin": "pointPowByPinCoeffs", "duct": "pointPowByDuctCoeffs"}[component]
+        pinCoeffs = self.p[param][:, nodeNum, :]
         pinPowers = [
             Polynomial(e, domain=windowDomain, window=windowDomain)(zCoord)
             for e in pinCoeffs

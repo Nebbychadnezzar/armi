@@ -438,6 +438,14 @@ def _getNeutronicsBlockParams():
         )
 
         pb.defParam(
+            "pointPowByDuctCoeffs",
+            units="W/cm$^3$",
+            description="Pin point power coefficients",
+            location=ParamLocation.CHILDREN,
+            default=None,
+        )
+
+        pb.defParam(
             "ductPointPower",
             units="W/cm$^3$",
             description="Duct point power",
