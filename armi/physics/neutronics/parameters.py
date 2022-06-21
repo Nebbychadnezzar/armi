@@ -435,6 +435,7 @@ def _getNeutronicsBlockParams():
             description="Pin point power coefficients",
             location=ParamLocation.CHILDREN,
             default=None,
+            saveToDB=True,
         )
 
         pb.defParam(
@@ -443,6 +444,7 @@ def _getNeutronicsBlockParams():
             description="Pin point power coefficients",
             location=ParamLocation.CHILDREN,
             default=None,
+            saveToDB=True,
         )
 
         pb.defParam(
